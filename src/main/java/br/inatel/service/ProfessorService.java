@@ -5,6 +5,8 @@ import br.inatel.repository.ProfessorRepository;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.time.LocalTime;
+
 public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
@@ -20,7 +22,7 @@ public class ProfessorService {
         JsonObject jsonObject = JsonParser.parseString(professorString).getAsJsonObject();
 
         return new Professor(jsonObject.get("nomeDoProfessor").getAsString(),
-                jsonObject.get("horarioDeAtendimento").getAsString(),
+                LocalTime.parse(jsonObject.get("horarioDeAtendimento").getAsString()),
                 jsonObject.get("periodo").getAsString());
     }
 }
