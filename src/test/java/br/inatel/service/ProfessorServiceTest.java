@@ -7,19 +7,14 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 public class ProfessorServiceTest {
 
-    private final ProfessorRepository professorRepository = mock(ProfessorRepository.class);
-
+    private final ProfessorRepository professorRepository = new ProfessorRepositoryMock();
     private final ProfessorService professorService = new ProfessorService(professorRepository);
 
     @Test
     public void testeBuscarProfessorChris(){
-        when(professorRepository.encontrarProfessor(anyString())).thenReturn(getProfessorString("Chris", "17:30:00", "noturno"));
 
         final Professor professor = professorService.buscarProfessor("Chris");
 
@@ -32,7 +27,6 @@ public class ProfessorServiceTest {
 
     @Test
     public void testeBuscarProfessorMarceloEVerificarChamadoDoProfessorRepository(){
-        when(professorRepository.encontrarProfessor(anyString())).thenReturn(getProfessorString("Marcelo", "15:30:00", "diurno"));
 
         final Professor professor = professorService.buscarProfessor("Marcelo");
 
@@ -41,13 +35,10 @@ public class ProfessorServiceTest {
         assertEquals(professorEsperado.getNome(), professor.getNome());
         assertEquals(professorEsperado.getHorario(), professor.getHorario());
         assertEquals(professorEsperado.getPeriodo(), professor.getPeriodo());
-        verify(professorRepository, times(1)).encontrarProfessor(anyString());
     }
 
     @Test
     public void testeBuscarRenzoERenanEVerificarSeProfessorRepositoryFoiChamado2Vezes(){
-        when(professorRepository.encontrarProfessor(anyString())).thenReturn(getProfessorString("Renzo", "21:30:00", "noturno"));
-        when(professorRepository.encontrarProfessor(anyString())).thenReturn(getProfessorString("Renan", "10:00:00", "diurno"));
 
         final Professor professorRenzo = professorService.buscarProfessor("Renzo");
         final Professor professorRenan = professorService.buscarProfessor("Renan");
@@ -61,47 +52,42 @@ public class ProfessorServiceTest {
         assertEquals(professorRenan.getNome(), professorRenanEsperado.getNome());
         assertEquals(professorRenan.getHorario(), professorRenanEsperado.getHorario());
         assertEquals(professorRenan.getPeriodo(), professorRenanEsperado.getPeriodo());
-        verify(professorRepository, times(2)).encontrarProfessor(anyString());
     }
 
     @Test
     public void testeBuscarProfessorPhyllQueNaoExiste(){
-        when(professorRepository.encontrarProfessor("Phyll")).thenReturn(null);
 
-        assertThrows(
-                NullPointerException.class,
-                () -> professorService.buscarProfessor("Phyll")
-        );
+        final Professor professor = professorService.buscarProfessor("Phyll");
 
-        verify(professorRepository, times(1)).encontrarProfessor("Phyll");
+        final Professor professorEsperado = getProfessor("Inexistente", "00:00:00", "inexistente");
+
+        assertEquals(professorEsperado.getNome(), professor.getNome());
+        assertEquals(professorEsperado.getHorario(), professor.getHorario());
+        assertEquals(professorEsperado.getPeriodo(), professor.getPeriodo());
     }
 
     @Test
     public void testeBuscarProfessorPassandoNomeNull(){
-        when(professorRepository.encontrarProfessor(null)).thenReturn(null);
 
-        assertThrows(
-                NullPointerException.class,
-                () -> professorService.buscarProfessor(null)
-        );
+        final Professor professor = professorService.buscarProfessor(null);
 
-        verify(professorRepository, times(1)).encontrarProfessor(null);
+        final Professor professorEsperado = getProfessor("Inexistente", "00:00:00", "inexistente");
+
+        assertEquals(professorEsperado.getNome(), professor.getNome());
+        assertEquals(professorEsperado.getHorario(), professor.getHorario());
+        assertEquals(professorEsperado.getPeriodo(), professor.getPeriodo());
     }
 
     @Test
     public void testeBuscarProfessorPassandoStringVazia(){
-        when(professorRepository.encontrarProfessor("")).thenReturn(null);
 
-        assertThrows(
-                NullPointerException.class,
-                () -> professorService.buscarProfessor("")
-        );
+        final Professor professor = professorService.buscarProfessor("");
 
-        verify(professorRepository, times(1)).encontrarProfessor("");
-    }
+        final Professor professorEsperado = getProfessor("Inexistente", "00:00:00", "inexistente");
 
-    private String getProfessorString(String nome, String horario, String periodo){
-        return  "{ \"nomeDoProfessor\": \""  + nome + "\", \"horarioDeAtendimento\": \"" + horario + "\", \"periodo\": \"" + periodo + "\"}";
+        assertEquals(professorEsperado.getNome(), professor.getNome());
+        assertEquals(professorEsperado.getHorario(), professor.getHorario());
+        assertEquals(professorEsperado.getPeriodo(), professor.getPeriodo());
     }
 
     private Professor getProfessor(String nome, String horario, String periodo){
